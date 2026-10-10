@@ -1,0 +1,14 @@
+Flask
+flask-cors
+
+numpy
+pandas
+
+scikit-learn
+joblib
+
+tensorflow
+sentence-transformers
+faiss-cpu
+
+gunicorn

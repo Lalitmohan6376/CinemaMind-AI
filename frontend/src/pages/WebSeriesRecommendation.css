@@ -1,0 +1,1183 @@
+.webseries-page {
+
+  min-height: 100vh;
+
+  width: 100%;
+
+  padding: 55px 24px 70px;
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      #21163b 0%,
+      #0d0b15 35%,
+      #08090d 70%
+    );
+
+  color: #ffffff;
+
+}
+
+
+.webseries-content {
+
+  width: 100%;
+
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.webseries-hero {
+
+  max-width: 780px;
+
+  margin: 35px auto 32px;
+
+  text-align: center;
+
+}
+
+
+.webseries-badge {
+
+  display: inline-block;
+
+  margin-bottom: 16px;
+
+  color: #54d9ff;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+}
+
+
+.webseries-hero h1 {
+
+  margin: 0;
+
+  font-size: 48px;
+
+  line-height: 1.15;
+
+  font-weight: 750;
+
+}
+
+
+.webseries-hero h1 span {
+
+  color: #20c8ed;
+
+}
+
+
+.webseries-hero p {
+
+  max-width: 650px;
+
+  margin: 16px auto 0;
+
+  color: #85818f;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.webseries-search {
+
+  max-width: 850px;
+
+  margin: 0 auto;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(18, 17, 25, 0.95);
+
+  border: 1px solid #292631;
+
+  border-radius: 16px;
+
+}
+
+
+.webseries-search-label {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+
+}
+
+
+.webseries-search-label span {
+
+  color: #eeeeef;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+}
+
+
+.webseries-search-label small {
+
+  color: #6d6976;
+
+  font-size: 11px;
+
+}
+
+
+.webseries-search textarea {
+
+  display: block;
+
+  width: 100%;
+
+  min-height: 125px;
+
+  padding: 15px;
+
+  box-sizing: border-box;
+
+  resize: vertical;
+
+  outline: none;
+
+  border: 1px solid #302d39;
+
+  border-radius: 11px;
+
+  background: #0a0910;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+
+}
+
+
+.webseries-search textarea::placeholder {
+
+  color: #55515f;
+
+}
+
+
+.webseries-search textarea:focus {
+
+  border-color: #7058e8;
+
+}
+
+
+.webseries-search button {
+
+  width: 100%;
+
+  height: 50px;
+
+  margin-top: 12px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    90deg,
+    #7654e9,
+    #18a9d5
+  );
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+}
+
+
+.webseries-search button:hover {
+
+  opacity: 0.9;
+
+}
+
+
+.webseries-search button:disabled {
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+}
+
+
+.webseries-search button > span {
+
+  margin-left: 6px;
+
+  font-size: 18px;
+
+}
+
+
+/* =========================
+   AI LOADING
+========================= */
+
+.webseries-processing {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 14px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #2b2740;
+
+  border-radius: 10px;
+
+  background: rgba(31, 25, 48, 0.65);
+
+}
+
+
+.webseries-processing-icon {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 30px;
+
+  height: 30px;
+
+  border-radius: 50%;
+
+  background: rgba(123, 86, 235, 0.18);
+
+  color: #9b82ff;
+
+  animation: webseries-processing-pulse 1.4s ease-in-out infinite;
+
+}
+
+
+.webseries-processing strong {
+
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #e8e5ef;
+
+  font-size: 12px;
+
+}
+
+
+.webseries-processing small {
+
+  color: #716d7b;
+
+  font-size: 10px;
+
+}
+
+
+.webseries-ai-loader {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  margin-right: 8px;
+
+}
+
+
+.webseries-ai-loader span {
+
+  width: 5px;
+
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  animation: webseries-loader-bounce 0.8s infinite ease-in-out;
+
+}
+
+
+.webseries-ai-loader span:nth-child(2) {
+
+  animation-delay: 0.15s;
+
+}
+
+
+.webseries-ai-loader span:nth-child(3) {
+
+  animation-delay: 0.3s;
+
+}
+
+
+@keyframes webseries-processing-pulse {
+
+  0%,
+  100% {
+
+    transform: scale(1);
+
+    opacity: 0.7;
+
+  }
+
+  50% {
+
+    transform: scale(1.15);
+
+    opacity: 1;
+
+  }
+
+}
+
+
+@keyframes webseries-loader-bounce {
+
+  0%,
+  60%,
+  100% {
+
+    transform: translateY(0);
+
+    opacity: 0.5;
+
+  }
+
+  30% {
+
+    transform: translateY(-4px);
+
+    opacity: 1;
+
+  }
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+.webseries-error {
+
+  max-width: 850px;
+
+  margin: 15px auto 0;
+
+  padding: 12px 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #4a2931;
+
+  border-radius: 9px;
+
+  background: #211217;
+
+  color: #ff8998;
+
+  text-align: center;
+
+  font-size: 13px;
+
+}
+
+
+/* =========================
+   RECOMMENDATIONS
+========================= */
+
+.webseries-recommendations {
+
+  margin-top: 50px;
+
+}
+
+
+.webseries-recommendation-title {
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+
+}
+
+
+.webseries-recommendation-title > div:first-child > span {
+
+  color: #61dfff;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.8px;
+
+}
+
+
+.webseries-recommendation-title h2 {
+
+  margin: 6px 0 5px;
+
+  font-size: 28px;
+
+}
+
+
+.webseries-recommendation-title p {
+
+  margin: 0;
+
+  color: #77737f;
+
+  font-size: 13px;
+
+}
+
+
+.webseries-result-count {
+
+  padding: 7px 11px;
+
+  border: 1px solid #2d2937;
+
+  border-radius: 8px;
+
+  color: #817d89;
+
+  font-size: 11px;
+
+}
+
+
+/* =========================
+   WEB SERIES GRID
+========================= */
+
+.webseries-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 17px;
+
+}
+
+
+.webseries-card {
+
+  overflow: hidden;
+
+  border: 1px solid #24222c;
+
+  border-radius: 12px;
+
+  background: #111017;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+}
+
+
+.webseries-card:hover {
+
+  transform: translateY(-5px);
+
+  border-color: #51476f;
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.35);
+
+}
+
+
+.webseries-poster {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 285px;
+
+  overflow: hidden;
+
+  background: #181720;
+
+}
+
+
+.webseries-poster img {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+}
+
+
+.webseries-number {
+
+  position: absolute;
+
+  top: 9px;
+
+  left: 9px;
+
+  padding: 5px 7px;
+
+  border-radius: 6px;
+
+  background: rgba(5, 5, 8, 0.78);
+
+  color: #ffffff;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+}
+
+
+.webseries-view {
+
+  position: absolute;
+
+  right: 9px;
+
+  bottom: 9px;
+
+  padding: 6px 8px;
+
+  border-radius: 6px;
+
+  background: rgba(8, 7, 12, 0.82);
+
+  color: #d9d5e8;
+
+  font-size: 9px;
+
+  opacity: 0;
+
+  transform: translateY(5px);
+
+  transition: 0.2s ease;
+
+}
+
+
+.webseries-card:hover .webseries-view {
+
+  opacity: 1;
+
+  transform: translateY(0);
+
+}
+
+
+.webseries-no-poster {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #181720;
+
+  color: #77737f;
+
+  font-size: 38px;
+
+}
+
+
+/* =========================
+   CARD BODY
+========================= */
+
+.webseries-card-body {
+
+  padding: 13px;
+
+}
+
+
+.webseries-card-body h3 {
+
+  height: 40px;
+
+  margin: 0 0 7px;
+
+  overflow: hidden;
+
+  color: #f3f2f5;
+
+  font-size: 15px;
+
+  line-height: 1.35;
+
+}
+
+
+.webseries-genre {
+
+  height: 17px;
+
+  margin-bottom: 8px;
+
+  overflow: hidden;
+
+  color: #9688ff;
+
+  font-size: 11px;
+
+}
+
+
+.webseries-card-body p {
+
+  height: 72px;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #77737f;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+}
+
+
+/* =========================
+   PAGINATION
+========================= */
+
+.webseries-pagination {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  margin-top: 30px;
+
+}
+
+
+.webseries-pagination button {
+
+  min-width: 36px;
+
+  height: 36px;
+
+  padding: 0 10px;
+
+  border: 1px solid #2c2935;
+
+  border-radius: 8px;
+
+  background: #121119;
+
+  color: #8e8998;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+}
+
+
+.webseries-pagination button:hover:not(:disabled) {
+
+  border-color: #5b4b85;
+
+  color: #ffffff;
+
+}
+
+
+.webseries-pagination-page.active {
+
+  border-color: #7654e9;
+
+  background: #7654e9;
+
+  color: #ffffff;
+
+}
+
+
+.webseries-pagination-arrow {
+
+  font-size: 16px !important;
+
+}
+
+
+.webseries-pagination button:disabled {
+
+  opacity: 0.3;
+
+  cursor: not-allowed;
+
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.webseries-modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 25px;
+
+  box-sizing: border-box;
+
+  background: rgba(3, 3, 7, 0.82);
+
+  backdrop-filter: blur(8px);
+
+}
+
+
+.webseries-modal {
+
+  position: relative;
+
+  display: flex;
+
+  width: 100%;
+
+  max-width: 780px;
+
+  max-height: 85vh;
+
+  overflow: hidden;
+
+  border: 1px solid #302b3c;
+
+  border-radius: 16px;
+
+  background: #111017;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.55);
+
+}
+
+
+.webseries-modal-close {
+
+  position: absolute;
+
+  top: 12px;
+
+  right: 12px;
+
+  z-index: 5;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 34px;
+
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #3a3545;
+
+  border-radius: 50%;
+
+  background: rgba(8, 7, 12, 0.85);
+
+  color: #ffffff;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+}
+
+
+.webseries-modal-poster {
+
+  width: 42%;
+
+  min-height: 430px;
+
+  background: #181720;
+
+}
+
+
+.webseries-modal-poster img {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+}
+
+
+.webseries-modal-content {
+
+  flex: 1;
+
+  padding: 45px 35px;
+
+  overflow-y: auto;
+
+}
+
+
+.webseries-modal-label {
+
+  margin-bottom: 10px;
+
+  color: #61dfff;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.8px;
+
+}
+
+
+.webseries-modal-content h2 {
+
+  margin: 0 0 12px;
+
+  color: #f5f3f8;
+
+  font-size: 28px;
+
+  line-height: 1.25;
+
+}
+
+
+.webseries-modal-genre {
+
+  margin-bottom: 22px;
+
+  color: #9688ff;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+
+}
+
+
+.webseries-modal-content p {
+
+  margin: 0;
+
+  color: #9a96a3;
+
+  font-size: 14px;
+
+  line-height: 1.8;
+
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1050px) {
+
+  .webseries-grid {
+
+    grid-template-columns: repeat(4, 1fr);
+
+  }
+
+}
+
+
+/* =========================
+   SMALLER TABLET
+========================= */
+
+@media (max-width: 850px) {
+
+  .webseries-hero h1 {
+
+    font-size: 40px;
+
+  }
+
+
+  .webseries-grid {
+
+    grid-template-columns: repeat(3, 1fr);
+
+  }
+
+
+  .webseries-modal {
+
+    max-width: 650px;
+
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 650px) {
+
+  .webseries-page {
+
+    padding: 40px 15px 60px;
+
+  }
+
+
+  .webseries-hero {
+
+    margin-top: 20px;
+
+  }
+
+
+  .webseries-hero h1 {
+
+    font-size: 34px;
+
+  }
+
+
+  .webseries-search-label {
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+  }
+
+
+  .webseries-grid {
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+
+  }
+
+
+  .webseries-recommendation-title {
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+  }
+
+
+  .webseries-modal {
+
+    flex-direction: column;
+
+    max-height: 90vh;
+
+  }
+
+
+  .webseries-modal-poster {
+
+    width: 100%;
+
+    height: 280px;
+
+    min-height: 0;
+
+  }
+
+
+  .webseries-modal-content {
+
+    padding: 25px 22px 30px;
+
+  }
+
+
+  .webseries-modal-content h2 {
+
+    font-size: 22px;
+
+  }
+
+}
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 430px) {
+
+  .webseries-hero h1 {
+
+    font-size: 29px;
+
+  }
+
+
+  .webseries-hero p {
+
+    font-size: 13px;
+
+  }
+
+
+  .webseries-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .webseries-poster {
+
+    height: 350px;
+
+  }
+
+
+  .webseries-pagination {
+
+    gap: 5px;
+
+  }
+
+
+  .webseries-pagination button {
+
+    min-width: 32px;
+
+    height: 32px;
+
+  }
+
+}
