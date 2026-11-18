@@ -1,1 +1,1 @@
-# CinemaMind-AI-Powered-Entertainment-Recommendation-System
+# CinemaMind-AI-Powered-Movie-Recommendation-System
