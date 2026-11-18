@@ -1,17 +1,12 @@
+import os
+import uuid
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-from prediction.review import predict_review
-from prediction.revenue import predict_revenue
-from prediction.movie_success import success_predict
-from prediction.overview import summarize_overview
-from rag.movie_chatbot import movie_chatbot
-from database import db
 from dotenv import load_dotenv
-from recommendation.poster_recommendation import recommend_posters
-import os
 from sqlalchemy import URL
 
+from database import db
 from tables.user import User
 from tables.review import Review
 from tables.sentiment_history import SentimentHistory
@@ -20,12 +15,16 @@ from tables.revenue_prediction_history import RevenuePredictionHistory
 from tables.overview_history import OverviewHistory
 from tables.recommendation_history import RecommendationHistory
 
+from prediction.review import predict_review
+from prediction.revenue import predict_revenue
+from prediction.movie_success import success_predict
+from prediction.overview import summarize_overview
+from rag.movie_chatbot import movie_chatbot
+
 from recommendation.anime_recommendation import recommend_anime
 from recommendation.webseries_recommendation import recommend_webseries
 from recommendation.movie_recommendation import recommend_movies
-
-from datetime import datetime
-
+from recommendation.poster_recommendation import recommend_posters
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(BASE_DIR, ".env")
@@ -34,354 +33,317 @@ load_dotenv(dotenv_path=dotenv_path, override=True)
 app = Flask(__name__)
 CORS(app)
 
-
-app.config["SQLALCHEMY_DATABASE_URI"] = URL.create(
-    "mysql+pymysql",
-    username=os.getenv("MYSQL_USER"),
-    password=os.getenv("MYSQL_PASSWORD"),
-    host=os.getenv("MYSQL_HOST"),
-    port=int(os.getenv("MYSQL_PORT")),
-    database=os.getenv("MYSQL_DATABASE")
-)
+# Database Configuration with Graceful Fallback
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+elif os.getenv("MYSQL_USER") and os.getenv("MYSQL_DATABASE"):
+    mysql_port = os.getenv("MYSQL_PORT")
+    port_val = int(mysql_port) if mysql_port and mysql_port.isdigit() else 3306
+    app.config["SQLALCHEMY_DATABASE_URI"] = URL.create(
+        "mysql+pymysql",
+        username=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD") or "",
+        host=os.getenv("MYSQL_HOST") or "localhost",
+        port=port_val,
+        database=os.getenv("MYSQL_DATABASE")
+    )
+else:
+    # Safe local fallback to SQLite if MySQL is not configured
+    sqlite_path = os.path.join(BASE_DIR, "cinemamind.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
+    print(f"Info: Using local SQLite database at {sqlite_path}")
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 db.init_app(app)
 
 with app.app_context():
-
-    db.create_all()
-
-    print("All Tables Created Successfully!")
-
-
-with app.app_context():
+    try:
+        db.create_all()
+        print("All Tables Verified / Created Successfully!")
+    except Exception as e:
+        print("Database Table Init Warning:", e)
 
     try:
-
         db.engine.connect()
-
         print("Database Connected Successfully!")
-
     except Exception as e:
-
-        print("Database Connection Failed!")
-        print(e)
+        print("Database Connection Warning:", e)
 
 
-# Review route
+def safe_commit():
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print("Warning: Database commit failed:", e)
 
+
+# Health Check
+@app.route("/", methods=["GET"])
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "online",
+        "service": "CinemaMind AI Backend",
+        "timestamp": datetime.now().isoformat()
+    })
+
+
+# Review Sentiment route
 @app.route("/review", methods=["POST"])
 def review():
-
-    data = request.json
-
-    print("DATA:", data)
-
-    review_text = data["review"]
+    data = request.get_json(silent=True) or {}
+    review_text = data.get("review", "")
 
     result = predict_review(review_text)
 
-    new_history = SentimentHistory(
-        user_id=1,
-        input_text=review_text,
-        output_text=result,
-        created_at=datetime.now()
-    )
+    try:
+        new_history = SentimentHistory(
+            user_id=1,
+            input_text=review_text,
+            output_text=result,
+            created_at=datetime.now()
+        )
+        db.session.add(new_history)
+        safe_commit()
+    except Exception as e:
+        print("Error saving sentiment history:", e)
 
-    db.session.add(new_history)
-
-    db.session.commit()
-
-    print("RESULT:", result)
-    print("Data Saved Successfully!")
-
-    return jsonify({
-        "result": result
-    })
+    return jsonify({"result": result})
 
 
 # Movie revenue route
-
 @app.route("/revenue", methods=["POST"])
 def revenue():
+    data = request.get_json(silent=True) or {}
 
-    data = request.json
+    try:
+        vote_average = float(data.get("vote_average", 0))
+        vote_count = float(data.get("vote_count", 0))
+        runtime = float(data.get("runtime", 0))
+        budget = float(data.get("budget", 0))
+        popularity = float(data.get("popularity", 0))
+        year = float(data.get("year", 2024))
+        month = float(data.get("month", 1))
 
-    vote_average = float(data["vote_average"])
-    vote_count = float(data["vote_count"])
-    runtime = float(data["runtime"])
-    budget = float(data["budget"])
-    popularity = float(data["popularity"])
-    year = float(data["year"])
-    month = float(data["month"])
+        result = predict_revenue(
+            vote_average,
+            vote_count,
+            runtime,
+            budget,
+            popularity,
+            year,
+            month
+        )
 
-    result = predict_revenue(
-        vote_average,
-        vote_count,
-        runtime,
-        budget,
-        popularity,
-        year,
-        month
-    )
+        try:
+            new_history = RevenuePredictionHistory(
+                user_id=1,
+                vote_average=vote_average,
+                vote_count=vote_count,
+                runtime=runtime,
+                budget=budget,
+                popularity=popularity,
+                year=int(year),
+                month=int(month),
+                revenue=result,
+                created_at=datetime.now()
+            )
+            db.session.add(new_history)
+            safe_commit()
+        except Exception as e:
+            print("Error saving revenue history:", e)
 
-    new_history = RevenuePredictionHistory(
-        user_id=1,
-        vote_average=vote_average,
-        vote_count=vote_count,
-        runtime=runtime,
-        budget=budget,
-        popularity=popularity,
-        year=int(year),
-        month=int(month),
-        revenue=result,
-        created_at=datetime.now()
-    )
-
-    db.session.add(new_history)
-
-    db.session.commit()
-
-    print("Revenue Data Saved Successfully!")
-
-    return jsonify({
-        "revenue": result
-    })
+        return jsonify({"revenue": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
-# Movie success route
-
+# Movie success route (supported as both /sucess and /success)
 @app.route("/sucess", methods=["POST"])
-def sucess():
+@app.route("/success", methods=["POST"])
+def success_endpoint():
+    data = request.get_json(silent=True) or {}
 
-    data = request.json
+    try:
+        vote_average = float(data.get("vote_average", 0))
+        vote_count = float(data.get("vote_count", 0))
+        runtime = float(data.get("runtime", 0))
+        budget = float(data.get("budget", 0))
+        popularity = float(data.get("popularity", 0))
+        year = int(data.get("year", 2024))
+        month = int(data.get("month", 1))
 
-    vote_average = float(data["vote_average"])
-    vote_count = float(data["vote_count"])
-    runtime = float(data["runtime"])
-    budget = float(data["budget"])
-    popularity = float(data["popularity"])
-    year = int(data["year"])
-    month = int(data["month"])
+        result = success_predict(
+            vote_average,
+            vote_count,
+            runtime,
+            budget,
+            popularity,
+            year,
+            month
+        )
 
-    result = success_predict(
-        vote_average,
-        vote_count,
-        runtime,
-        budget,
-        popularity,
-        year,
-        month
-    )
+        input_data = (
+            f"vote_average: {vote_average}, vote_count: {vote_count}, "
+            f"runtime: {runtime}, budget: {budget}, popularity: {popularity}, "
+            f"year: {year}, month: {month}"
+        )
 
-    input_data = f"""
-    vote_average: {vote_average},
-    vote_count: {vote_count},
-    runtime: {runtime},
-    budget: {budget},
-    popularity: {popularity},
-    year: {year},
-    month: {month}
-    """
+        try:
+            new_history = SuccessPredictionHistory(
+                user_id=1,
+                input_text=input_data,
+                output_text=result,
+                created_at=datetime.now()
+            )
+            db.session.add(new_history)
+            safe_commit()
+        except Exception as e:
+            print("Error saving success history:", e)
 
-    new_history = SuccessPredictionHistory(
-        user_id=1,
-        input_text=input_data,
-        output_text=result,
-        created_at=datetime.now()
-    )
-
-    db.session.add(new_history)
-
-    db.session.commit()
-
-    print("Success Prediction Data Saved Successfully!")
-
-    return jsonify({
-        "success": result
-    })
+        return jsonify({"success": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 # Overview summarization route
-# Overview summarization route
-
 @app.route("/overview", methods=["POST"])
 def overview():
-
-    data = request.json
-
-    text = data["text"]
+    data = request.get_json(silent=True) or {}
+    text = data.get("text", "")
 
     result = summarize_overview(text)
 
-    new_history = OverviewHistory(
-        user_id=1,
-        input_text=text,
-        output_text=result,
-        created_at=datetime.now()
-    )
+    try:
+        new_history = OverviewHistory(
+            user_id=1,
+            input_text=text,
+            output_text=result,
+            created_at=datetime.now()
+        )
+        db.session.add(new_history)
+        safe_commit()
+    except Exception as e:
+        print("Error saving overview history:", e)
 
-    db.session.add(new_history)
+    return jsonify({"summary": result})
 
-    db.session.commit()
 
-    print("Overview Data Saved Successfully!")
-
-    return jsonify({
-        "summary": result
-    })
 # Feedback form
-
 @app.route("/feedback", methods=["POST"])
 def feedback():
+    data = request.get_json(silent=True) or {}
 
-    data = request.json
+    try:
+        content_type = str(data.get("content_type", "movie"))
+        category = str(data.get("category", "General"))
+        rating = int(data.get("rating", 5))
+        liked_raw = data.get("liked", True)
+        liked = liked_raw in [True, "true", "True", 1]
+        review_val = str(data.get("review", ""))
 
-    content_type = data["content_type"]
-    category = data["category"]
-    rating = int(data["rating"])
-    liked = data["liked"] == "true"
-    review = data["review"]
+        new_review = Review(
+            content_type=content_type,
+            category=category,
+            rating=rating,
+            liked=liked,
+            review=review_val
+        )
+        db.session.add(new_review)
+        safe_commit()
 
-    new_review = Review(
-        content_type=content_type,
-        category=category,
-        rating=rating,
-        liked=liked,
-        review=review
-    )
-
-    db.session.add(new_review)
-
-    db.session.commit()
-
-    print("Feedback Data Saved Successfully!")
-
-    return jsonify({
-        "message": "Feedback submitted successfully"
-    })
+        return jsonify({"message": "Feedback submitted successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 # Anime Recommendation
-
 @app.route("/anime-recommend", methods=["POST"])
 def anime_recommend():
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "")
+    genre = data.get("genre", "")
+    overview_text = data.get("overview", "")
 
-    data = request.json
+    recommendations = recommend_anime(title, genre, overview_text)
 
-    title = data["title"]
-    genre = data["genre"]
-    overview = data["overview"]
+    try:
+        for anime in recommendations[:5]:
+            history = RecommendationHistory(
+                user_id=1,
+                content_type="anime",
+                search_query=title,
+                recommended_title=anime["title"]
+            )
+            db.session.add(history)
+        safe_commit()
+    except Exception as e:
+        print("Error saving anime recommendation history:", e)
 
-    recommendations = recommend_anime(
-        title,
-        genre,
-        overview
-    )
-
-    for anime in recommendations:
-
-        history = RecommendationHistory(
-            user_id=1,
-            content_type="anime",
-            search_query=title,
-            recommended_title=anime["title"]
-        )
-
-        db.session.add(history)
-
-    db.session.commit()
-
-    print("ANIME RECOMMENDATIONS:", recommendations)
-    print("NUMBER OF RESULTS:", len(recommendations))
-    print("Recommendation History Saved!")
-
-    return jsonify({
-        "recommendations": recommendations
-    })
+    return jsonify({"recommendations": recommendations})
 
 
 # Web Series route
-
 @app.route("/webseries-recommend", methods=["POST"])
 def webseries_recommend():
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "")
+    genre = data.get("genre", "")
+    overview_text = data.get("overview", "")
 
-    data = request.json
+    recommendations = recommend_webseries(title, genre, overview_text)
 
-    title = data["title"]
-    genre = data["genre"]
-    overview = data["overview"]
+    try:
+        for series in recommendations[:5]:
+            history = RecommendationHistory(
+                user_id=1,
+                content_type="webseries",
+                search_query=title,
+                recommended_title=series["title"]
+            )
+            db.session.add(history)
+        safe_commit()
+    except Exception as e:
+        print("Error saving webseries history:", e)
 
-    recommendations = recommend_webseries(
-        title,
-        genre,
-        overview
-    )
-
-    return jsonify({
-        "recommendations": recommendations
-    })
+    return jsonify({"recommendations": recommendations})
 
 
 # Movie route
-
 @app.route("/movie-recommend", methods=["POST"])
 def movie_recommend():
+    data = request.get_json(silent=True) or {}
+    title = data.get("title", "")
+    genre = data.get("genre", "")
+    overview_text = data.get("overview", "")
 
-    data = request.json
+    recommendations = recommend_movies(title, genre, overview_text)
 
-    title = data["title"]
-    genre = data["genre"]
-    overview = data["overview"]
+    try:
+        search_query = f"Title: {title} Genre: {genre} Overview: {overview_text}"
+        for movie in recommendations[:5]:
+            history = RecommendationHistory(
+                user_id=1,
+                content_type="movie",
+                search_query=search_query,
+                recommended_title=movie["title"]
+            )
+            db.session.add(history)
+        safe_commit()
+    except Exception as e:
+        print("Error saving movie recommendation history:", e)
 
-    recommendations = recommend_movies(
-        title,
-        genre,
-        overview
-    )
+    return jsonify({"recommendations": recommendations})
 
-    # Save only Top 5 recommendations
 
-    top_5 = recommendations[:5]
-
-    search_query = (
-        "Title: " + title +
-        " Genre: " + genre +
-        " Overview: " + overview
-    )
-
-    for movie in top_5:
-
-        history = RecommendationHistory(
-            user_id=1,
-            content_type="movie",
-            search_query=search_query,
-            recommended_title=movie["title"]
-        )
-
-        db.session.add(history)
-
-    db.session.commit()
-
-    return jsonify({
-        "recommendations": recommendations
-    })
-
-# Rag chatbot
+# RAG chatbot
 @app.route("/chat", methods=["POST"])
 def chat():
-
     data = request.get_json(silent=True) or {}
-
-    print("CHAT REQUEST:", data)
-
-    user_message = (
-        data.get("message")
-        or data.get("question")
-        or ""
-    ).strip()
+    user_message = (data.get("message") or data.get("question") or "").strip()
 
     if not user_message:
         return jsonify({
@@ -396,86 +358,50 @@ def chat():
         print("Chat Route Error:", e)
         return jsonify({
             "answer": "Sorry, I could not process your request right now.",
-            "points": []
+            "points": [f"Error: {str(e)[:100]}"]
         }), 500
 
-# poster route
 
+# Poster recommendation route
 @app.route("/poster-recommend", methods=["POST"])
 def poster_recommend():
-
     if "poster" not in request.files:
-        return jsonify({
-            "error": "Poster image is required"
-        }), 400
+        return jsonify({"error": "Poster image is required"}), 400
 
     poster = request.files["poster"]
-
     if poster.filename == "":
-        return jsonify({
-            "error": "Please select a poster"
-        }), 400
+        return jsonify({"error": "Please select a poster"}), 400
 
-    title = request.form.get(
-        "title",
-        ""
-    ).strip()
+    title = request.form.get("title", "").strip()
+    genre = request.form.get("genre", "").strip()
+    overview_text = request.form.get("overview", "").strip()
 
-    genre = request.form.get(
-        "genre",
-        ""
-    ).strip()
-
-    overview = request.form.get(
-        "overview",
-        ""
-    ).strip()
-
-    BASE_DIR = os.path.dirname(
-        os.path.abspath(__file__)
-    )
-
-    temp_path = os.path.join(
-        BASE_DIR,
-        "temp_poster.jpg"
-    )
+    # Generate a collision-free temporary filename
+    temp_filename = f"temp_poster_{uuid.uuid4().hex}.jpg"
+    temp_path = os.path.join(BASE_DIR, temp_filename)
 
     try:
-
-        poster.save(
-            temp_path
-        )
-
+        poster.save(temp_path)
         recommendations = recommend_posters(
             temp_path,
             title,
             genre,
-            overview
+            overview_text
         )
-
-        return jsonify({
-            "recommendations": recommendations
-        })
-
+        return jsonify({"recommendations": recommendations})
     except Exception as e:
-
-        print(
-            "Poster Recommendation Error:",
-            e
-        )
-
+        print("Poster Recommendation Error:", e)
         return jsonify({
-            "error": "Unable to generate poster recommendations"
+            "error": "Unable to generate poster recommendations",
+            "detail": str(e)
         }), 500
-
     finally:
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
 
-        if os.path.exists(
-            temp_path
-        ):
-            os.remove(
-                temp_path
-            )
 
 if __name__ == "__main__":
     app.run(

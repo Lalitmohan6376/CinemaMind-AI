@@ -1,13 +1,26 @@
+import os
 import numpy as np
 import joblib
 import keras
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 
-model = keras.models.load_model("models/movie_success_model.keras", compile=False)
-scaler = joblib.load("models/movie_success_scaler.pkl")
+model_path = os.path.join(MODELS_DIR, "movie_success_model.keras")
+scaler_path = os.path.join(MODELS_DIR, "movie_success_scaler.pkl")
+
+model = keras.models.load_model(model_path, compile=False)
+scaler = joblib.load(scaler_path)
 
 
 def success_predict(vote_average, vote_count, runtime, budget, popularity, year, month):
+
+    budget = float(budget)
+    runtime = float(runtime)
+    popularity = float(popularity)
+    vote_count = float(vote_count)
+    year = int(year)
+    month = int(month)
 
     budget_per_runtime = budget / (runtime + 1)
     popularity_per_vote = popularity / (vote_count + 1)
@@ -46,4 +59,4 @@ def success_predict(vote_average, vote_count, runtime, budget, popularity, year,
         2: "Hit"
     }
 
-    return labels[result]
+    return labels.get(result, "Average")
