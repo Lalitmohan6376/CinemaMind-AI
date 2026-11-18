@@ -1,16 +1,17 @@
+import os
 import pickle
 import numpy as np
 import joblib
 import keras
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 
-model = keras.models.load_model(
-    "models/movie_revenue_model.keras",
-    compile=False
-)
+model_path = os.path.join(MODELS_DIR, "movie_revenue_model.keras")
+scaler_path = os.path.join(MODELS_DIR, "movie_revenue_scaler.pkl")
 
-
-scaler = joblib.load("models/movie_revenue_scaler.pkl")
+model = keras.models.load_model(model_path, compile=False)
+scaler = joblib.load(scaler_path)
 
 
 def predict_revenue(
@@ -23,26 +24,30 @@ def predict_revenue(
     month
 ):
 
-    vote_count = np.log1p(vote_count)
-    budget = np.log1p(budget)
-    popularity = np.log1p(popularity)
+    vote_average = float(vote_average)
+    vote_count = float(vote_count)
+    runtime = float(runtime)
+    budget = float(budget)
+    popularity = float(popularity)
+    year = int(year)
+    month = int(month)
 
-    budget_per_min = budget / (runtime + 1)
+    vote_count_scaled = np.log1p(vote_count)
+    budget_scaled = np.log1p(budget)
+    popularity_scaled = np.log1p(popularity)
 
-    popularity_score = popularity * vote_average
-
-    rating_votes = vote_average * vote_count
-
-    budget_popularity = budget * popularity
-
+    budget_per_min = budget_scaled / (runtime + 1)
+    popularity_score = popularity_scaled * vote_average
+    rating_votes = vote_average * vote_count_scaled
+    budget_popularity = budget_scaled * popularity_scaled
     quarter = ((month - 1) // 3) + 1
 
     features = np.array([[
         vote_average,
-        vote_count,
+        vote_count_scaled,
         runtime,
-        budget,
-        popularity,
+        budget_scaled,
+        popularity_scaled,
         year,
         month,
         budget_per_min,
@@ -58,4 +63,4 @@ def predict_revenue(
 
     revenue = np.expm1(prediction[0][0])
 
-    return float(revenue)
+    return max(0.0, float(revenue))
