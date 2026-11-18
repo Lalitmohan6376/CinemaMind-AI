@@ -1,18 +1,40 @@
 import { useState } from "react";
+import {
+  FileText,
+  Sparkles,
+  Copy,
+  AlertCircle,
+  RefreshCw,
+  ArrowRight,
+  Check
+} from "../components/Icons";
+import { Toast } from "../components/Toast";
 import "./OverviewSummarization.css";
+
+const sampleSynopses = [
+  {
+    label: "Space Exploration",
+    text: "In the distant future, Earth's resources are near depletion. A team of skilled astronauts embarks on an interstellar expedition through a newly formed spatial anomaly, searching for a habitable planet to preserve the human civilization against extinction."
+  },
+  {
+    label: "Detective Mystery",
+    text: "A retired investigator is drawn back into service when an enigmatic puzzle is left at a high-profile museum. Unraveling the clues forces the detective to confront historical conspiracies buried beneath the city's prestigious institutions."
+  }
+];
 
 function OverviewSummarization() {
   const [overview, setOverview] = useState("");
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
 
   const summarizeOverview = async () => {
     setError("");
     setSummary("");
 
     if (!overview.trim()) {
-      setError("Please enter a movie overview first.");
+      setError("Please input a movie or series overview to summarize.");
       return;
     }
 
@@ -29,75 +51,180 @@ function OverviewSummarization() {
 
       if (!response.ok) throw new Error(data.error || "Unable to summarize the overview.");
 
-      setSummary(data.summary || data.output || data.result || "");
+      const resultText = data.summary || data.output || data.result || "";
+      setSummary(resultText);
+      setToastMessage("AI summary generated successfully!");
     } catch (err) {
-      console.log("Overview Summarization Error:", err);
-      setError(err.message || "Unable to connect to the summarization system.");
+      console.error("Overview Summarization Error:", err);
+      setError(err.message || "Unable to connect to the summarization model.");
     } finally {
       setLoading(false);
     }
   };
 
+  const copySummary = () => {
+    if (!summary) return;
+    navigator.clipboard?.writeText(summary);
+    setToastMessage("Copied summary to clipboard!");
+  };
+
   return (
-    <div className="overview-page">
-      <div className="overview-container">
-        <section className="overview-hero">
-          <div className="overview-eyebrow">✦ AI STUDIO</div>
-          <h1>Movie Overview Summarization</h1>
-          <p>Enter a movie overview and let CinemaMind AI create a short and meaningful summary.</p>
+    <div className="overview-page-v2">
+      <Toast message={toastMessage} onClose={() => setToastMessage("")} />
+
+      <main className="overview-container-v2">
+        <section className="overview-hero-v2">
+          <div className="overview-badge-v2">
+            <FileText size={14} />
+            <span>AI NATURAL LANGUAGE CONDENSATION</span>
+          </div>
+          <h1>
+            Movie Overview <span className="overview-gradient-text">Summarization</span>
+          </h1>
+          <p>
+            Condense lengthy narrative synopses into concise, high-impact story premises without losing emotional core or character motives.
+          </p>
+
+          <div className="overview-samples-row">
+            <span className="sample-label">
+              <Sparkles size={14} /> Sample Synopses:
+            </span>
+            <div className="sample-buttons">
+              {sampleSynopses.map((s, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="sample-synopsis-btn"
+                  onClick={() => {
+                    setOverview(s.text);
+                    setError("");
+                    setToastMessage(`Loaded sample: ${s.label}`);
+                  }}
+                  disabled={loading}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
-        <section className="overview-section">
-          <div className="overview-left">
-            <div className="overview-icon">✦</div>
-            <span className="overview-label">AI SUMMARIZATION</span>
-            <h2>Summarize a <span>movie overview.</span></h2>
-            <p>Enter the movie description below and CinemaMind AI will turn it into a simple, concise summary.</p>
-          </div>
-
-          <div className="overview-card">
-            <div className="overview-card-header">
-              <div>
-                <h3>Movie Overview</h3>
-                <p>Enter the overview you want to summarize</p>
+        <div className="overview-workspace-grid">
+          <section className="overview-input-card">
+            <div className="card-header-clean">
+              <div className="card-title-group">
+                <FileText size={20} className="card-accent-icon" />
+                <div>
+                  <h3>Input Storyline</h3>
+                  <span>Paste complete plot synopsis or narrative description</span>
+                </div>
               </div>
-              <div className="overview-card-icon">✦</div>
+
+              <div className="char-meter">
+                <span>{overview.length} chars</span>
+              </div>
             </div>
 
-            <div className="overview-divider"></div>
-            <label className="overview-input-label">Overview</label>
-
             <textarea
+              className="overview-textarea"
+              rows={9}
               value={overview}
-              onChange={(e) => { setOverview(e.target.value); setError(""); }}
-              placeholder="Enter the movie overview here..."
+              onChange={(e) => {
+                setOverview(e.target.value);
+                setError("");
+              }}
+              placeholder="Paste long movie overview, book synopsis, or script outline here..."
               disabled={loading}
             />
 
-            <div className="overview-footer">
-              <span>{overview.length} characters</span>
-              <button type="button" className="overview-button" onClick={summarizeOverview} disabled={loading}>
-                {loading ? <><span className="overview-spinner"></span> Summarizing...</> : <>✦ Summarize Overview</>}
+            {error && (
+              <div className="overview-error-banner">
+                <AlertCircle size={18} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="overview-action-row">
+              <button
+                type="button"
+                className="clear-btn"
+                onClick={() => {
+                  setOverview("");
+                  setSummary("");
+                  setError("");
+                }}
+                disabled={loading || !overview}
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                className="summarize-launch-btn"
+                onClick={summarizeOverview}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw size={18} className="spin-icon" />
+                    <span>Distilling Narrative...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    <span>Generate Summary</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {error && <div className="overview-error"><span>!</span>{error}</div>}
-      </div>
+          <section className="overview-result-card">
+            <div className="card-header-clean">
+              <div className="card-title-group">
+                <Sparkles size={20} className="card-accent-icon result-icon" />
+                <div>
+                  <h3>Distilled AI Output</h3>
+                  <span>Key narrative essence & core premise</span>
+                </div>
+              </div>
 
-      {summary && (
-        <div className="overview-modal-overlay" onClick={() => setSummary("")}>
-          <div className="overview-modal" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="overview-modal-close" onClick={() => setSummary("")}>×</button>
-            <div className="overview-modal-icon">✦</div>
-            <span className="overview-modal-label">AI SUMMARY</span>
-            <h2>Movie Overview Summary</h2>
-            <div className="overview-modal-line"></div>
-            <p>{summary}</p>
-          </div>
+              {summary && (
+                <button type="button" className="copy-action-btn" onClick={copySummary}>
+                  <Copy size={15} />
+                  <span>Copy</span>
+                </button>
+              )}
+            </div>
+
+            <div className="summary-display-box">
+              {loading ? (
+                <div className="summary-loading-placeholder">
+                  <div className="loading-pulsar" />
+                  <p>Model is generating concise representation...</p>
+                </div>
+              ) : summary ? (
+                <div className="summary-content-rendered">
+                  <div className="summary-accent-quote">“</div>
+                  <p className="summary-body-text">{summary}</p>
+                  <div className="summary-stats-footer">
+                    <span className="summary-badge-done">
+                      <Check size={14} /> Ready for Production
+                    </span>
+                    <span>{summary.split(/\s+/).filter(Boolean).length} words</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="summary-empty-state">
+                  <FileText size={32} className="empty-icon" />
+                  <p>Your distilled story summary will appear here after clicking "Generate Summary".</p>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
-      )}
+      </main>
     </div>
   );
 }

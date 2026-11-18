@@ -1,104 +1,235 @@
+import { useNavigate } from "react-router-dom";
+import {
+  Film,
+  Popcorn,
+  Tv,
+  Image,
+  DollarSign,
+  Target,
+  FileText,
+  MessageSquare,
+  Sparkles,
+  ArrowRight,
+  BarChart3
+} from "../components/Icons";
 import "./Dashboard.css";
 
 const statistics = [
-  { icon: "🎬", value: "1M+", label: "Movies" },
-  { icon: "📺", value: "55K+", label: "Web Series" },
-  { icon: "🍿", value: "176K+", label: "Anime" },
-  { icon: "🖼️", value: "50K+", label: "Poster Collection" }
+  { icon: Film, value: "1,000,000+", label: "Indexed Feature Films", color: "violet" },
+  { icon: Popcorn, value: "176,000+", label: "Anime & OVA Series", color: "pink" },
+  { icon: Tv, value: "55,000+", label: "Television & Web Shows", color: "cyan" },
+  { icon: Image, value: "50,000+", label: "Vector Poster Embeddings", color: "amber" }
 ];
 
-const services = [
-  { icon: "🎬", title: "Movie Recommendation", description: "Discover movies based on your interests.", path: "/movie-ai" },
-  { icon: "📺", title: "Web Series Recommendation", description: "Find web series that match your preferences.", path: "/webseries-ai" },
-  { icon: "🍿", title: "Anime Recommendation", description: "Explore anime similar to what you enjoy.", path: "/anime-ai" },
-  { icon: "🖼️", title: "Poster Recommendation", description: "Find visually similar movie posters.", path: "/poster-ai" }
+const recommendationHub = [
+  {
+    icon: Film,
+    title: "Movie Semantic AI",
+    desc: "Uncover cinema based on nuanced plot descriptions, themes, and narrative atmosphere.",
+    path: "/movie-ai",
+    badge: "Semantic Search",
+    color: "violet"
+  },
+  {
+    icon: Popcorn,
+    title: "Anime Discovery AI",
+    desc: "Explore anime matching your exact taste across shonen, psychological, and fantasy.",
+    path: "/anime-ai",
+    badge: "Anime Lab",
+    color: "pink"
+  },
+  {
+    icon: Tv,
+    title: "Web Series Matcher",
+    desc: "Discover multi-episode television series tailored to your pacing preferences.",
+    path: "/webseries-ai",
+    badge: "Streaming",
+    color: "cyan"
+  },
+  {
+    icon: Image,
+    title: "Poster Vision Search",
+    desc: "Computer vision algorithm mapping aesthetic posters to visually similar films.",
+    path: "/poster-ai",
+    badge: "Vision",
+    color: "rose"
+  }
 ];
 
-const aiFeatures = [
-  { icon: "💬", title: "Sentiment Analysis", description: "Analyze the sentiment of a movie review." },
-  { icon: "💰", title: "Box Office Prediction", description: "Estimate expected movie box-office performance." },
-  { icon: "🎯", title: "Movie Success Prediction", description: "Predict the success category of a movie." },
-  { icon: "📝", title: "Overview Summarization", description: "Generate a concise summary from a movie overview." }
+const aiStudioTools = [
+  {
+    icon: DollarSign,
+    title: "Box Office Revenue Prediction",
+    desc: "Multi-variate regression model estimating global theatrical revenue based on production budgets and release months.",
+    path: "/movie-revenue",
+    badge: "Regression",
+    color: "emerald"
+  },
+  {
+    icon: Target,
+    title: "Movie Success Classifier",
+    desc: "Classify upcoming cinema projects into Hit, Average, or Flop categories using supervised machine learning.",
+    path: "/movie-success",
+    badge: "Classification",
+    color: "amber"
+  },
+  {
+    icon: FileText,
+    title: "Overview Summarization",
+    desc: "Condense long movie descriptions into clean, high-impact premises ready for pitch decks and quick reads.",
+    path: "/overview-summarization",
+    badge: "NLP Summary",
+    color: "blue"
+  },
+  {
+    icon: MessageSquare,
+    title: "Audience Sentiment NLP",
+    desc: "Evaluate emotional valence and critical perception from written movie reviews using text analysis.",
+    path: "/movie-review-analysis",
+    badge: "Sentiment",
+    color: "purple"
+  }
 ];
 
 function Dashboard() {
-  const openPage = (path) => {
-    window.location.href = path;
-  };
+  const navigate = useNavigate();
 
   return (
-    <main className="dashboard-page">
-      <div className="dashboard-container">
-
-        <section className="dashboard-header">
-          <span className="dashboard-label">CINEMAMIND AI</span>
-          <h1>Entertainment AI Dashboard</h1>
-          <p>Explore movies, web series, anime and AI-powered entertainment tools.</p>
+    <div className="dashboard-page-v2">
+      <main className="dashboard-container-v2">
+        {/* Header */}
+        <section className="dashboard-hero-v2">
+          <div className="dashboard-badge-v2">
+            <BarChart3 size={14} />
+            <span>CENTRAL COMMAND & ANALYTICS</span>
+          </div>
+          <h1>
+            CinemaMind <span className="dash-gradient-text">Studio Dashboard</span>
+          </h1>
+          <p>
+            Monitor recommendation indexing, launch specialized ML models, and explore the entire entertainment intelligence suite.
+          </p>
         </section>
 
-        <section className="stats-grid">
-          {statistics.map((stat) => (
-            <div className="stat-card" key={stat.label}>
-              <div className="stat-icon">{stat.icon}</div>
-              <div className="stat-info">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
+        {/* Live Metrics Grid */}
+        <section className="dashboard-stats-grid">
+          {statistics.map((stat, idx) => {
+            const StatIcon = stat.icon;
+            return (
+              <div key={idx} className={`stat-card-v2 ${stat.color}`}>
+                <div className="stat-icon-wrap">
+                  <StatIcon size={24} />
+                </div>
+                <div className="stat-content">
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+                <div className="stat-glow-line" />
               </div>
+            );
+          })}
+        </section>
+
+        {/* Discovery Launchpad */}
+        <section className="dashboard-section-block">
+          <div className="section-header-row">
+            <div>
+              <span className="section-eyebrow">DISCOVERY ENGINES</span>
+              <h2>Semantic Recommendation Hub</h2>
+              <p>Natural language and computer vision recommendation pipelines.</p>
             </div>
-          ))}
-        </section>
-
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <span>DISCOVER</span>
-            <h2>Explore</h2>
-            <p>Discover entertainment using CinemaMind AI.</p>
           </div>
 
-          <div className="services-grid">
-            {services.map((service) => (
-              <div className="service-card" key={service.title} onClick={() => openPage(service.path)}>
-                <div className="service-top">
-                  <div className="service-icon">{service.icon}</div>
-                  <span className="service-arrow">↗</span>
+          <div className="engines-grid">
+            {recommendationHub.map((engine) => {
+              const EngineIcon = engine.icon;
+              return (
+                <div
+                  key={engine.title}
+                  className={`engine-card ${engine.color}`}
+                  onClick={() => navigate(engine.path)}
+                >
+                  <div className="engine-card-top">
+                    <div className="engine-icon-box">
+                      <EngineIcon size={22} />
+                    </div>
+                    <span className="engine-badge">{engine.badge}</span>
+                  </div>
+
+                  <h3>{engine.title}</h3>
+                  <p>{engine.desc}</p>
+
+                  <div className="engine-card-footer">
+                    <span>Launch Engine</span>
+                    <ArrowRight size={15} />
+                  </div>
                 </div>
-
-                <h3>{service.title}</h3>
-                <p>{service.description}</p>
-
-                <button type="button" onClick={(event) => {
-                  event.stopPropagation();
-                  openPage(service.path);
-                }}>
-                  Explore <span>→</span>
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <span>SMART TOOLS</span>
-            <h2>AI Feature</h2>
-            <p>Useful AI tools for understanding and exploring movies.</p>
+        {/* AI Studio Predictive Models */}
+        <section className="dashboard-section-block">
+          <div className="section-header-row">
+            <div>
+              <span className="section-eyebrow">MACHINE LEARNING</span>
+              <h2>AI Studio Predictive Models</h2>
+              <p>Specialized regression, classification, and summarization networks.</p>
+            </div>
           </div>
 
-          <div className="features-grid">
-            {aiFeatures.map((feature) => (
-              <div className="feature-card" key={feature.title}>
-                <div className="feature-icon">{feature.icon}</div>
-                <div>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.description}</p>
+          <div className="studio-tools-grid">
+            {aiStudioTools.map((tool) => {
+              const ToolIcon = tool.icon;
+              return (
+                <div
+                  key={tool.title}
+                  className={`studio-tool-card ${tool.color}`}
+                  onClick={() => navigate(tool.path)}
+                >
+                  <div className="studio-tool-icon-wrap">
+                    <ToolIcon size={24} />
+                  </div>
+
+                  <div className="studio-tool-info">
+                    <div className="tool-title-badge">
+                      <h3>{tool.title}</h3>
+                      <span className="tool-badge-pill">{tool.badge}</span>
+                    </div>
+                    <p>{tool.desc}</p>
+
+                    <div className="tool-action-link">
+                      <span>Open Model Workspace</span>
+                      <ArrowRight size={14} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-      </div>
-    </main>
+        {/* System Health Strip */}
+        <section className="system-health-banner">
+          <div className="health-left">
+            <span className="status-live-dot" />
+            <div>
+              <strong>Neural Engine Cluster: Optimal</strong>
+              <span>Average response time: &lt; 320ms • All models operational</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="health-chat-trigger"
+            onClick={() => window.dispatchEvent(new CustomEvent("open-chatbot"))}
+          >
+            <Sparkles size={16} />
+            <span>Consult Assistant</span>
+          </button>
+        </section>
+      </main>
+    </div>
   );
 }
 
