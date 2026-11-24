@@ -1,4 +1,4 @@
-# 🎬 CinemaMind AI — Intelligent Entertainment Platformss
+# 🎬 CinemaMind AI — Intelligent Entertainment Platforms
 
 
 <p align="center">
