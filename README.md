@@ -1,4 +1,4 @@
-# 🎬 CinemaMind AI — Intelligent Entertainment
+# 🎬 CinemaMind AI — Intelligent Entertainmentaa
 
 <p align="center">
   <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&auto=format&fit=crop&q=80" alt="CinemaMind AI Banner" width="100%" style="border-radius: 12px; max-height: 400px; object-fit: cover;" />
